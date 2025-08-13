@@ -40,5 +40,37 @@ struct Engine {
       exit(EXIT_FAILURE);
     }
     window = glfwCreateWindow(WIDTH, HEIGHT, "2D Black Hole", NULL, NULL);
+    if (!window) {
+      cerr << "failed to create glfw window" << endl;
+      glfwTerminate();
+      exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(window);
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+      cerr < "failed to initialise glew" << endl;
+      glewDestroyWindow(window);
+      glewTerminate();
+      exit(EXIT_FAILURE);
+    }
+    glViewport(0, 0, Width, Height);
   }
-}
+  void run() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    double left = -width + offsetX;
+    double right = width + offsetX;
+    double bottom = -height + offsetY;
+    double top = height + offsetY;
+    glOrtho(left, right, bottom, top, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+  }
+};
+
+struct BlackHole {
+  BlackHole();
+} Blackhole SagA();
+
+int main() {}
