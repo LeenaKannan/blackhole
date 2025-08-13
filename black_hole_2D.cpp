@@ -49,9 +49,9 @@ struct Engine {
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
-      cerr < "failed to initialise glew" << endl;
-      glewDestroyWindow(window);
-      glewTerminate();
+      cerr << "failed to initialise glew" << endl;
+      glfwDestroyWindow(window);
+      glfwTerminate();
       exit(EXIT_FAILURE);
     }
     glViewport(0, 0, WIDTH, HEIGHT);
@@ -118,7 +118,7 @@ struct Ray {
   }
   void draw(const std::vector<Ray> &rays) {
     // draw current ray positions as points
-    glPointsize(2.0f);
+    glPointSize(2.0f);
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_POINTS);
     for (const auto &ray : rays) {
@@ -235,7 +235,7 @@ int main() {
       ray.step(1.0f, SagA.r_s);
       ray.draw(rays);
     }
-    glfwswapBuffers(engine.window);
+    glfwSwapBuffers(engine.window);
     glfwPollEvents();
   }
   return 0;
