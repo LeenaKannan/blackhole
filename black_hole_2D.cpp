@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,7 +54,7 @@ struct Engine {
       glewTerminate();
       exit(EXIT_FAILURE);
     }
-    glViewport(0, 0, Width, Height);
+    glViewport(0, 0, WIDTH, HEIGHT);
   }
   void run() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -91,6 +92,51 @@ struct BlackHole {
     glEnd();
   }
 };
-Blackhole SagA(vec(0.0f, 0.0f, 0.0f), 8.54e36);
+BlackHole SagA(vec3(0.0f, 0.0f, 0.0f), 8.54e36);
 
-int main() {}
+struct Ray {
+  // cartesian coordinates
+  double x, y;
+  // polar coordinates
+  double r, phi, dr, dphi;
+
+  vector<vec2> trail; // trail of points
+  double E, L;        // conserved quanitites
+
+  Ray(vec2 pos, vec2 dir)
+      : x(pos.x), y(pos.y), r(sqrt(pos.x * pos.x + pos.y * pos.y)),
+        phi(atan2(pos.y, pos.x)), dr(dir.x), dphi(dir.y) {
+    this->r = sqrt(x * x + y * y);
+    this->phi = atan2(y, x);
+    dr = dir.x * cos(phi) + dir.y * sin(phi);
+    dphi = (-dir.x * sin(phi) + dir.y * cos(phi)) / r;
+    L = r * r * dphi;
+    double f = 1.0 - SagA.r_s / r;
+    double dt_dλ = sqrt((dr * dr) / (f * f) + (r * r * dphi * dphi) / f);
+    E = f * dt_dλ;
+    trail.push_back({x, y});
+  }
+  void draw(const std::vector<Ray> &rays) {
+    // draw current ray positions as points
+    glPointsize(2.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    for (auto &ray : rays) {
+      ray.step(1.0f)
+    }
+
+    if (r <= r_s) {
+      // less than swarzschild radius
+    }
+  };
+  vector<Ray> rays;
+
+  int main() {
+    while (!glfwWindowShouldClose(engine.window)) {
+      engine.run();
+      SagA.draw();
+
+      for (auto &ray : rays) {
+        ray.step(1.0f, )
+      }
+    }
+  }
