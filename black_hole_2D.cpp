@@ -70,7 +70,27 @@ struct Engine {
 };
 
 struct BlackHole {
-  BlackHole();
-} Blackhole SagA();
+  vec3 position;
+  double mass;
+  double radius;
+  double r_s;
+
+  BlackHole(vec3 pos, float m) : position(pos), mass(m) {
+    r_s = 2.0 * G * mass / (c * c);
+  }
+  void draw() {
+    glBegin(GL_TRIANGLE_FAN);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex2f(0.0f, 0.0f);
+    for (int i = 0; i <= 100; i++) {
+      float angle = 2.0f * M_PI * i / 100;
+      float x = r_s * sin(angle);
+      float y = r_s * cos(angle);
+      glVertex2f(x, y);
+    }
+    glEnd();
+  }
+};
+Blackhole SagA(vec(0.0f, 0.0f, 0.0f), 8.54e36);
 
 int main() {}
