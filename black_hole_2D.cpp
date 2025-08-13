@@ -120,9 +120,8 @@ struct Ray {
     // draw current ray positions as points
     glPointsize(2.0f);
     glColor3f(1.0f, 0.0f, 0.0f);
-    for (auto &ray : rays) {
-      ray.step(1.0f)
-    }
+    for
+      const(auto &ray : rays) { ray.step(1.0f) }
 
     if (r <= r_s) {
       // less than swarzschild radius
@@ -136,7 +135,11 @@ struct Ray {
       SagA.draw();
 
       for (auto &ray : rays) {
-        ray.step(1.0f, )
+        ray.step(1.0f, SagA.r_s);
+        ray.draw(rays);
       }
+      glfwswapBuffers(engine.window);
+      glfwPollEvents();
     }
+    return 0;
   }
