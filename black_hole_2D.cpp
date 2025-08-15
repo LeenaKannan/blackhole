@@ -1,8 +1,5 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +19,7 @@ double G = 6.67430e-11;
 struct Ray;
 void rk4Step(Ray &ray, double dλ, double rs);
 
+// --- Structs --- //
 struct Engine {
   GLFWwindow *window;
   int WIDTH = 800;
@@ -37,25 +35,28 @@ struct Engine {
 
   Engine() {
     if (!glfwInit()) {
-      cerr << "failed to initialise glfw" << endl;
+      cerr << "Failed to initialize GLFW" << endl;
       exit(EXIT_FAILURE);
     }
-    window = glfwCreateWindow(WIDTH, HEIGHT, "2D Black Hole", NULL, NULL);
+    window =
+        glfwCreateWindow(WIDTH, HEIGHT, "Black Hole Simulation", NULL, NULL);
     if (!window) {
-      cerr << "failed to create glfw window" << endl;
+      cerr << "Failed to create GLFW window" << endl;
       glfwTerminate();
       exit(EXIT_FAILURE);
     }
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
-      cerr << "failed to initialise glew" << endl;
+      cerr << "Failed to initialize GLEW" << endl;
       glfwDestroyWindow(window);
       glfwTerminate();
       exit(EXIT_FAILURE);
     }
     glViewport(0, 0, WIDTH, HEIGHT);
+    ;
   }
+
   void run() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
@@ -81,39 +82,45 @@ struct BlackHole {
   }
   void draw() {
     glBegin(GL_TRIANGLE_FAN);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex2f(0.0f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f); // Red color for the black hole
+    glVertex2f(0.0f, 0.0f);      // Center
     for (int i = 0; i <= 100; i++) {
       float angle = 2.0f * M_PI * i / 100;
-      float x = r_s * sin(angle);
-      float y = r_s * cos(angle);
+      float x = r_s * cos(angle); // Radius of 0.1
+      float y = r_s * sin(angle);
       glVertex2f(x, y);
     }
     glEnd();
   }
 };
-BlackHole SagA(vec3(0.0f, 0.0f, 0.0f), 8.54e36);
-
+BlackHole SagA(vec3(0.0f, 0.0f, 0.0f), 8.54e36); // Sagittarius A black hole
 struct Ray {
-  // cartesian coordinates
-  double x, y;
-  // polar coordinates
-  double r, phi, dr, dphi;
-
+  // -- cartesian coords -- //
+  double x;
+  double y;
+  // -- polar coords -- //
+  double r;
+  double phi;
+  double dr;
+  double dphi;
   vector<vec2> trail; // trail of points
-  double E, L;        // conserved quanitites
+  double E, L;        // conserved quantities
 
   Ray(vec2 pos, vec2 dir)
       : x(pos.x), y(pos.y), r(sqrt(pos.x * pos.x + pos.y * pos.y)),
         phi(atan2(pos.y, pos.x)), dr(dir.x), dphi(dir.y) {
+    // step 1) get polar coords (r, phi) :
     this->r = sqrt(x * x + y * y);
     this->phi = atan2(y, x);
-    dr = dir.x * cos(phi) + dir.y * sin(phi);
+    // step 2) seed velocities :
+    dr = dir.x * cos(phi) + dir.y * sin(phi); // m/s
     dphi = (-dir.x * sin(phi) + dir.y * cos(phi)) / r;
+    // step 3) store conserved quantities
     L = r * r * dphi;
     double f = 1.0 - SagA.r_s / r;
     double dt_dλ = sqrt((dr * dr) / (f * f) + (r * r * dphi * dphi) / f);
     E = f * dt_dλ;
+    // step 4) start trail :
     trail.push_back({x, y});
   }
   void draw(const std::vector<Ray> &rays) {
@@ -227,6 +234,7 @@ void rk4Step(Ray &ray, double dλ, double rs) {
 }
 
 int main() {
+  // rays.push_back(Ray(vec2(-1e11, 3.27606302719999999e10), vec2(c, 0.0f)));
   while (!glfwWindowShouldClose(engine.window)) {
     engine.run();
     SagA.draw();
@@ -235,8 +243,10 @@ int main() {
       ray.step(1.0f, SagA.r_s);
       ray.draw(rays);
     }
+
     glfwSwapBuffers(engine.window);
     glfwPollEvents();
   }
+
   return 0;
 }
